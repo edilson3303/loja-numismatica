@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: lojanumismaticamcp
+    runtime: node
+    plan: free
+    buildCommand: npm ci || npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: SESSION_COOKIE_NAME
+        value: lnsid
+      - key: SESSION_IDLE_MINUTES
+        value: "30"
+      - key: SESSION_ABSOLUTE_HOURS
+        value: "12"
+      - key: SUPABASE_STORAGE_BUCKET
+        value: product-images
+      - key: BASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: APP_ENCRYPTION_KEY
+        generateValue: true
+      - key: SETUP_TOKEN
+        generateValue: true
+      - key: WHATSAPP_NUMBER
+        sync: false

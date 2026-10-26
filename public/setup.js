@@ -1,0 +1,6 @@
+'use strict';
+let csrf='';
+const form=document.getElementById('setupForm'),msg=document.getElementById('msg'),result=document.getElementById('result');
+async function api(url,opts={}){const r=await fetch(url,{credentials:'same-origin',...opts,headers:{'content-type':'application/json',...(opts.headers||{})}});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Falha na solicitação.');return data;}
+(async()=>{try{const s=await api('/api/setup/status');if(!s.setupRequired){form.hidden=true;msg.textContent='A configuração inicial já foi concluída. Use /login.';return;}csrf=(await api('/api/csrf')).csrfToken;}catch(e){msg.textContent=e.message;}})();
+form.addEventListener('submit',async e=>{e.preventDefault();msg.textContent='';const password=document.getElementById('password').value;if(password!==document.getElementById('confirm').value){msg.textContent='As senhas não coincidem.';return;}try{const data=await api('/api/setup/admin',{method:'POST',headers:{'x-csrf-token':csrf,'x-setup-token':document.getElementById('token').value},body:JSON.stringify({email:document.getElementById('email').value,password})});form.hidden=true;result.hidden=false;document.getElementById('secret').value=data.secret;msg.textContent='Administrador criado com sucesso.';}catch(err){msg.textContent=err.message;}});

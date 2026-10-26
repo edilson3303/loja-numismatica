@@ -1,0 +1,32 @@
+LOJA NUMISMÁTICA CLOUD — GUIA RÁPIDO
+
+1) SUPABASE
+- Crie um projeto gratuito em supabase.com.
+- SQL Editor > New query.
+- Abra supabase/setup.sql deste projeto, copie tudo e execute.
+- Settings > API Keys: copie Project URL e crie/copiei uma Secret key (sb_secret_...).
+
+2) GITHUB
+- Crie um repositório e envie os arquivos desta pasta.
+- NÃO envie .env.
+
+3) RENDER
+- New > Blueprint.
+- Conecte o repositório. O render.yaml configura o serviço Free.
+- Informe:
+  BASE_URL=https://lojanumismaticamcp.onrender.com
+  SUPABASE_URL=https://SEU-PROJETO.supabase.co
+  SUPABASE_SECRET_KEY=sb_secret_...
+  WHATSAPP_NUMBER=55DDDNUMERO
+- APP_ENCRYPTION_KEY e SETUP_TOKEN são gerados pelo Blueprint.
+- Faça Deploy.
+
+4) PRIMEIRO ADMIN
+- Render > Environment: copie SETUP_TOKEN.
+- Acesse https://lojanumismaticamcp.onrender.com/setup
+- Crie e-mail/senha e cadastre a chave TOTP no Google Authenticator.
+- Depois use /login.
+- /setup fica automaticamente bloqueado depois que o admin existe.
+
+IMPORTANTE
+Nunca coloque SUPABASE_SECRET_KEY, APP_ENCRYPTION_KEY ou SETUP_TOKEN no GitHub ou no código público.
