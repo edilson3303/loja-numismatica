@@ -5,6 +5,7 @@ import multer from 'multer';
 import sharp from 'sharp';
 import sanitizeHtml from 'sanitize-html';
 import PDFDocument from 'pdfkit';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { supabase, storageBucket, supabaseUrl, publicMediaUrl, audit, dbError } from './cloud.mjs';
@@ -13,7 +14,7 @@ import {
   encryptSecret, decryptSecret, newTotpSecret, verifyTotp, otpauthUri,
   cleanText, cleanMultiline, moneyToCents, safeInt
 } from './security.mjs';
-import { storeForHost, isPlatformHost, isStoreOpen, mediaPrefix, mediaBelongsToStore } from './tenant.mjs';
+import { storeForHost, isPlatformHost, isStoreOpen, mediaPrefix, mediaBelongsToStore, platformDomain } from './tenant.mjs';
 import { registerPlatformRoutes } from './platform.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -225,8 +226,36 @@ async function resolveStore(req,res,next){
     next();
   }catch(e){next(e);}
 }
+// Página de divulgação da plataforma: /conheca nos hosts da plataforma e a raiz do PLATFORM_DOMAIN.
+const landingTemplate=fs.readFileSync(path.join(privateDir,'vitrine.html'),'utf8');
+const escHtml=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const isLandingHost=host=>!!platformDomain&&(host===platformDomain||host==='www.'+platformDomain);
+async function renderLanding(req,res,next){
+  try{
+    const name=cleanText(process.env.PLATFORM_NAME||'Vitrine Numismática',60);
+    let wa=String(process.env.PLATFORM_WHATSAPP||'').replace(/\D/g,'');
+    if(!wa){const cfg=await readSettings(1).catch(()=>({}));wa=String(cfg.whatsapp||process.env.WHATSAPP_NUMBER||'').replace(/\D/g,'');}
+    if(wa.length===10||wa.length===11)wa='55'+wa;
+    const local=wa.startsWith('55')?wa.slice(2):wa;
+    const waText=local.length===11?`(${local.slice(0,2)}) ${local.slice(2,7)}-${local.slice(7)}`:local.length===10?`(${local.slice(0,2)}) ${local.slice(2,6)}-${local.slice(6)}`:local;
+    const values={
+      NOME:name,
+      WHATSAPP_URL:wa?`https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Quero saber mais sobre a ${name} para a minha loja numismática.`)}`:'#',
+      WHATSAPP_TEXTO:waText,
+      PRECO:cleanText(process.env.PLATFORM_PRICE||'R$ 99',30),
+      PRECO_NOTA:cleanText(process.env.PLATFORM_PRICE_NOTE||'30 dias grátis para testar. Sem fidelidade.',160),
+      DEMO_URL:process.env.PLATFORM_DEMO_URL||baseUrl,
+      SITE_URL:`${req.protocol}://${req.get('host')}`,
+      ANO:String(new Date().getFullYear())
+    };
+    res.setHeader('Cache-Control','public, max-age=300');
+    res.type('html').send(landingTemplate.replace(/\{\{([A-Z_]+)\}\}/g,(m,k)=>k in values?escHtml(values[k]):m));
+  }catch(e){next(e);}
+}
+app.get('/conheca',(req,res,next)=>isPlatformHost(req.hostname)?renderLanding(req,res,next):next());
+
 app.use(STORE_PATHS,resolveStore,loadSession('store'));
-app.get('/',resolveStore,loadSession('store'),(req,res)=>res.sendFile(path.join(publicDir,'index.html')));
+app.get('/',(req,res,next)=>isLandingHost(req.hostname)?renderLanding(req,res,next):next(),resolveStore,loadSession('store'),(req,res)=>res.sendFile(path.join(publicDir,'index.html')));
 
 async function requireAuth(req,res,next){
   try{

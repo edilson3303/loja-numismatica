@@ -186,3 +186,6 @@ O sistema atende várias lojas ao mesmo tempo. Cada loja tem catálogo, pedidos,
 - **Bloqueada por atraso:** passou da tolerância — site e painel da loja saem do ar até o pagamento.
 - **Pagamento:** botão **Pagamento** estende "pago até" pelos meses pagos e grava o histórico.
 - **Suspensa/Cancelada:** tira a loja do ar manualmente.
+
+### Página de divulgação
+A página de vendas da plataforma fica em `/conheca` (e na raiz de `PLATFORM_DOMAIN`, quando configurado). Nome, WhatsApp, preço e texto do preço são definidos pelas variáveis `PLATFORM_NAME`, `PLATFORM_WHATSAPP`, `PLATFORM_PRICE`, `PLATFORM_PRICE_NOTE` e `PLATFORM_DEMO_URL` no Render (veja `.env.example`). Os demais textos estão em `private/vitrine.html`.
