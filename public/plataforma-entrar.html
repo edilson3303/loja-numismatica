@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d0c">
+  <meta name="robots" content="noindex">
+  <title>Plataforma — Entrar</title>
+  <link rel="stylesheet" href="/styles.css?v=20261026-plataforma-1">
+  <script src="/plataforma-entrar.js?v=20261026-1" defer></script>
+</head>
+<body>
+  <main class="login">
+    <section class="login-card platform-card">
+      <h1>Plataforma</h1>
+      <p class="muted" id="subtitle">Painel de gestão das lojas.</p>
+
+      <form id="setupStep" class="hidden">
+        <p class="muted">Primeiro acesso: crie o administrador da plataforma. Use o <b>SETUP_TOKEN</b> que está nas variáveis do Render.</p>
+        <div class="field"><label for="setupToken">Token de instalação</label><input id="setupToken" type="password" autocomplete="off" required></div>
+        <div class="field"><label for="setupEmail">Seu e-mail</label><input id="setupEmail" type="email" autocomplete="username" required></div>
+        <div class="field"><label for="setupPassword">Senha forte</label><input id="setupPassword" type="password" autocomplete="new-password" minlength="14" required></div>
+        <div class="field"><label for="setupConfirm">Repita a senha</label><input id="setupConfirm" type="password" autocomplete="new-password" minlength="14" required></div>
+        <button class="btn primary" type="submit">Criar administrador</button>
+      </form>
+
+      <div id="setupResult" class="hidden">
+        <h2>Cadastre o 2FA agora</h2>
+        <p>Google Authenticator → <b>+</b> → <b>Inserir chave de configuração</b> → tipo <b>Baseada em tempo</b>.</p>
+        <div class="field"><label for="setupSecret">Chave TOTP</label><input id="setupSecret" readonly></div>
+        <button class="btn primary" id="goLogin" type="button">Já cadastrei, quero entrar</button>
+      </div>
+
+      <form id="loginStep" class="hidden">
+        <div class="field"><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required></div>
+        <div class="field"><label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required></div>
+        <button class="btn primary" type="submit">Continuar</button>
+      </form>
+
+      <form id="twoStep" class="hidden">
+        <div class="field"><label for="code">Código do autenticador</label><input id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required></div>
+        <button class="btn primary" type="submit">Entrar</button>
+      </form>
+
+      <div class="status" id="status" role="status"></div>
+    </section>
+  </main>
+</body>
+</html>

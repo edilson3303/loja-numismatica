@@ -26,10 +26,10 @@ export function publicMediaUrl(objectName) {
   return `${url}/storage/v1/object/public/${encodeURIComponent(storageBucket)}/${encodeURIComponent(safe)}`;
 }
 
-export async function audit({userId=null, action, entity=null, entityId=null, ipHash=null, uaHash=null, details=null}) {
+export async function audit({storeId=null, userId=null, platformUserId=null, action, entity=null, entityId=null, ipHash=null, uaHash=null, details=null}) {
   try {
     await supabase.from('audit_logs').insert({
-      user_id:userId, action, entity, entity_id:entityId==null?null:String(entityId),
+      store_id:storeId, user_id:userId, platform_user_id:platformUserId, action, entity, entity_id:entityId==null?null:String(entityId),
       ip_hash:ipHash, ua_hash:uaHash, details_json:details||null, created_at:Date.now()
     });
   } catch (err) { console.error('Falha ao gravar auditoria:', err); }

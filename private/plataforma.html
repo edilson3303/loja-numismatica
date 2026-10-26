@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d0c">
+  <meta name="robots" content="noindex">
+  <title>Plataforma — Lojas</title>
+  <link rel="stylesheet" href="/styles.css?v=20261026-plataforma-1">
+  <script src="/plataforma/plataforma.js?v=20261026-1" defer></script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav>
+        <div class="brand">Plataforma</div>
+        <button class="btn primary" id="newStore" type="button">+ Nova loja</button>
+        <button class="btn" id="logout" type="button">Sair</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin wrap">
+    <section class="kpi-grid" aria-label="Resumo">
+      <div class="kpi"><span>Lojas no ar</span><strong id="kpiOnline">—</strong><small id="kpiOnlineSub"></small></div>
+      <div class="kpi kpi-warn"><span>Vencidas (na tolerância)</span><strong id="kpiDue">—</strong><small id="kpiDueSoon"></small></div>
+      <div class="kpi kpi-danger"><span>Bloqueadas</span><strong id="kpiBlocked">—</strong><small>atrasadas ou suspensas</small></div>
+      <div class="kpi kpi-gold"><span>Receita mensal prevista</span><strong id="kpiMrr">—</strong><small id="kpiReceived"></small></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Lojas</h2>
+        <div class="panel-filters">
+          <input id="search" type="search" placeholder="Buscar por loja, dono, e-mail, endereço…">
+          <select id="stateFilter">
+            <option value="">Todas as situações</option>
+            <option value="active">Em dia</option>
+            <option value="due">Vencidas (na tolerância)</option>
+            <option value="overdue">Bloqueadas por atraso</option>
+            <option value="suspended">Suspensas</option>
+            <option value="cancelled">Canceladas</option>
+          </select>
+        </div>
+      </div>
+      <div id="storeList" class="admin-table-wrap"><p class="muted">Carregando…</p></div>
+    </section>
+  </main>
+
+  <!-- Cadastro / edição de loja -->
+  <dialog id="storeDialog" class="platform-dialog">
+    <form id="storeForm" method="dialog">
+      <div class="row between"><h2 id="storeDialogTitle">Nova loja</h2><button class="btn" type="button" data-close>Fechar</button></div>
+      <input type="hidden" id="storeId">
+
+      <div class="product-form-section product-form-required">
+        <div class="product-form-heading"><div><span class="product-form-kicker">Loja</span><h3>Identificação e endereço</h3></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="storeName">Nome da loja *</label><input id="storeName" required maxlength="120" placeholder="Ex.: Numismática do João"></div>
+          <div class="field"><label for="storeSlug">Endereço (subdomínio) *</label><input id="storeSlug" required maxlength="40" autocapitalize="none" spellcheck="false" placeholder="ex.: loja-do-joao"><small class="muted" id="slugPreview"></small></div>
+          <div class="field full"><label for="storeDomain">Domínio próprio (opcional)</label><input id="storeDomain" maxlength="253" placeholder="ex.: lojadojoao.com.br"><small class="muted">O domínio também precisa ser adicionado no Render e apontado no DNS do cliente.</small></div>
+          <div class="field"><label for="storeStatus">Situação</label><select id="storeStatus"><option value="active">Ativa</option><option value="suspended">Suspensa (fora do ar)</option><option value="cancelled">Cancelada (fora do ar)</option></select></div>
+        </div>
+      </div>
+
+      <div class="product-form-section product-form-home">
+        <div class="product-form-heading"><div><span class="product-form-kicker">Cliente</span><h3>Dono da loja</h3></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="ownerName">Nome</label><input id="ownerName" maxlength="120"></div>
+          <div class="field"><label for="ownerDocument">CPF / CNPJ</label><input id="ownerDocument" maxlength="30"></div>
+          <div class="field"><label for="ownerEmail">E-mail</label><input id="ownerEmail" type="email" maxlength="180"></div>
+          <div class="field"><label for="ownerPhone">Telefone / WhatsApp</label><input id="ownerPhone" maxlength="40"></div>
+        </div>
+      </div>
+
+      <div class="product-form-section product-form-details">
+        <div class="product-form-heading"><div><span class="product-form-kicker">Cobrança</span><h3>Plano e mensalidade</h3></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="planName">Plano</label><input id="planName" maxlength="60" placeholder="Mensal"></div>
+          <div class="field"><label for="monthlyPrice">Mensalidade (R$)</label><input id="monthlyPrice" inputmode="decimal" placeholder="Ex.: 99,90"></div>
+          <div class="field"><label for="paidUntil">Pago até</label><input id="paidUntil" type="date"><small class="muted">Depois desta data, a loja entra na tolerância.</small></div>
+          <div class="field"><label for="graceDays">Dias de tolerância</label><input id="graceDays" type="number" min="0" max="60" step="1" value="5"><small class="muted">Passados estes dias sem pagamento, a loja sai do ar.</small></div>
+          <div class="field full"><label for="storeNotes">Observações internas</label><textarea id="storeNotes" maxlength="2000"></textarea></div>
+        </div>
+      </div>
+
+      <div class="row"><button class="btn primary" id="saveStore" type="submit">Salvar loja</button></div>
+      <div class="status" id="storeStatusMsg" role="status"></div>
+    </form>
+  </dialog>
+
+  <!-- Token de instalação -->
+  <dialog id="tokenDialog" class="platform-dialog">
+    <div class="row between"><h2>Acesso inicial da loja</h2><button class="btn" type="button" data-close>Fechar</button></div>
+    <p class="muted">Envie estes dados ao dono da loja. Ele vai criar a própria senha e configurar o Google Authenticator. <b>O token aparece só agora</b>; se perder, gere outro.</p>
+    <div class="field"><label for="tokenUrl">Endereço de configuração</label><input id="tokenUrl" readonly></div>
+    <div class="field"><label for="tokenValue">Token de instalação</label><input id="tokenValue" readonly></div>
+    <div class="row"><button class="btn primary" id="copyToken" type="button">Copiar mensagem para o cliente</button></div>
+    <div class="status" id="tokenStatus" role="status"></div>
+  </dialog>
+
+  <!-- Pagamentos -->
+  <dialog id="paymentDialog" class="platform-dialog">
+    <div class="row between"><h2 id="paymentTitle">Pagamentos</h2><button class="btn" type="button" data-close>Fechar</button></div>
+    <p class="muted" id="paymentInfo"></p>
+    <form id="paymentForm" class="product-form-section product-form-home">
+      <div class="product-form-heading"><div><span class="product-form-kicker">Registrar</span><h3>Novo pagamento</h3><p>Estende o vencimento a partir da data “pago até” atual.</p></div></div>
+      <div class="form-grid">
+        <div class="field"><label for="payMonths">Meses pagos</label><input id="payMonths" type="number" min="1" max="36" step="1" value="1"></div>
+        <div class="field"><label for="payAmount">Valor recebido (R$)</label><input id="payAmount" inputmode="decimal"></div>
+        <div class="field"><label for="payDate">Data do pagamento</label><input id="payDate" type="date"></div>
+        <div class="field"><label for="payMethod">Forma</label><select id="payMethod"><option>Pix</option><option>Boleto</option><option>Cartão</option><option>Transferência</option><option>Dinheiro</option><option>Outro</option></select></div>
+        <div class="field full"><label for="payNote">Observação</label><input id="payNote" maxlength="300"></div>
+      </div>
+      <div class="row"><button class="btn primary" type="submit">Registrar pagamento</button><span class="muted" id="payPreview"></span></div>
+      <div class="status" id="payStatus" role="status"></div>
+    </form>
+    <h3 class="platform-subtitle">Histórico</h3>
+    <div id="paymentList" class="admin-table-wrap"></div>
+  </dialog>
+</body>
+</html>

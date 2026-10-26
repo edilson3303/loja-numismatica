@@ -159,3 +159,30 @@ Para bancos já existentes, execute uma vez `supabase/migrate-all-numismatic-pro
 - O cadastro administrativo recebe preço em Reais (ex.: 150,00), convertido no servidor para centavos.
 - Nome, preço e estoque são destacados como obrigatórios.
 - Recursos públicos e chamadas da API usam política sem cache para evitar exibição de conteúdo antigo após atualização.
+
+
+## Plataforma multi-lojas (revenda para lojas numismáticas)
+
+O sistema atende várias lojas ao mesmo tempo. Cada loja tem catálogo, pedidos, administradores, configurações e fotos separados. O dono da plataforma gerencia as lojas e as mensalidades em `/plataforma`.
+
+### Ativar (uma única vez, nesta ordem)
+1. No Supabase > SQL Editor, execute `supabase/migrate-multi-loja.sql`. Os dados atuais viram a loja nº 1 (`principal`); nada é apagado.
+2. Só depois publique o código (push no GitHub → deploy no Render).
+3. Acesse `https://lojanumismaticamcp.onrender.com/plataforma/entrar`, informe o `SETUP_TOKEN` do Render e crie seu acesso com Google Authenticator.
+
+### Endereços das lojas
+- **Loja principal:** continua em `BASE_URL` (ex.: `lojanumismaticamcp.onrender.com`).
+- **Subdomínios:** compre um domínio (ex.: `suaplataforma.com.br`), defina `PLATFORM_DOMAIN=suaplataforma.com.br` no Render e adicione o domínio curinga `*.suaplataforma.com.br` em Render > Settings > Custom Domains. Cada loja fica em `endereco.suaplataforma.com.br` e o painel em `painel.suaplataforma.com.br/plataforma`.
+- **Domínio próprio da loja:** cadastre no campo "Domínio próprio", adicione o domínio em Render > Custom Domains e peça ao cliente para apontar o DNS conforme o Render indicar.
+
+### Criar uma loja para um cliente
+1. Em `/plataforma`, clique em **+ Nova loja**, preencha nome, endereço, dono, mensalidade e "pago até".
+2. O sistema mostra um **token de instalação** (aparece uma única vez). Clique em **Copiar mensagem para o cliente** e envie.
+3. O cliente acessa `endereco-da-loja/setup`, cria a senha e o 2FA, e passa a usar `/login` e `/admin` normalmente.
+
+### Mensalidades e bloqueio automático
+- **Em dia:** "pago até" no futuro.
+- **Vencida (tolerância):** passou de "pago até", mas ainda dentro dos dias de tolerância — loja continua no ar.
+- **Bloqueada por atraso:** passou da tolerância — site e painel da loja saem do ar até o pagamento.
+- **Pagamento:** botão **Pagamento** estende "pago até" pelos meses pagos e grava o histórico.
+- **Suspensa/Cancelada:** tira a loja do ar manualmente.

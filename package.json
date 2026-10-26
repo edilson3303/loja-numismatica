@@ -11,7 +11,7 @@
     "dev": "node --env-file-if-exists=.env --watch src/server.mjs",
     "init-admin": "node --env-file-if-exists=.env scripts/init-admin.mjs",
     "backup": "node --env-file-if-exists=.env scripts/backup.mjs",
-    "check": "node --check src/server.mjs && node --check src/security.mjs && node --check src/cloud.mjs && node --check scripts/init-admin.mjs"
+    "check": "node --check src/server.mjs && node --check src/security.mjs && node --check src/cloud.mjs && node --check src/tenant.mjs && node --check src/platform.mjs && node --check scripts/init-admin.mjs"
   },
   "dependencies": {
     "argon2": "0.45.1",
